@@ -27,7 +27,7 @@ Raspberry Pi Pico (RP2040) + PlatformIO + Arduino framework project for driving 
 - `src/YM2612Bus.hpp`: Safe digitalWrite-based 8-bit bus access layer.
 - `src/YM2612.hpp`: YM2612 device abstraction layer built on top of the bus.
 - `src/VGMPlayer.hpp`: VGM parser/player that executes YM2612 writes and wait commands.
-- `src/rom_song.hpp`: Embedded VGM byte array generated from `vgm/song.vgm`.
+- `src/rom_song.hpp`: Embedded VGM byte array generated from `vgm/song.vgm`. (Use the [update_song.sh](./update_song.sh))
 - `src/main.cpp`: Startup sequence, serial logging, and playback loop.
 
 ## Design notes
