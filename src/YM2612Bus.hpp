@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Arduino.h>
+#include "ArduinoPlatform.hpp"
 #include <stdint.h>
 
 namespace re1 {

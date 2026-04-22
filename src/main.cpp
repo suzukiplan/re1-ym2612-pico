@@ -1,4 +1,4 @@
-#include <Arduino.h>
+#include "ArduinoPlatform.hpp"
 
 #include "VGMPlayer.hpp"
 #include "YM2612.hpp"

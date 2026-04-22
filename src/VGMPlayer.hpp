@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Arduino.h>
+#include "ArduinoPlatform.hpp"
 #include <stdint.h>
 
 #include "YM2612.hpp"
