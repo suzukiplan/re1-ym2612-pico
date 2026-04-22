@@ -26,15 +26,22 @@ Raspberry Pi Pico (RP2040) + PlatformIO + Arduino framework project for driving 
 - `platformio.ini`: PlatformIO environment for Raspberry Pi Pico with the Arduino framework.
 - `src/YM2612Bus.hpp`: Safe digitalWrite-based 8-bit bus access layer.
 - `src/YM2612.hpp`: YM2612 device abstraction layer built on top of the bus.
-- `src/main.cpp`: Startup sequence, serial logging, and safe test writes.
+- `src/VGMPlayer.hpp`: VGM parser/player that executes YM2612 writes and wait commands.
+- `src/rom_song.hpp`: Embedded VGM byte array generated from `vgm/song.vgm`.
+- `src/main.cpp`: Startup sequence, serial logging, and playback loop.
 
 ## Design notes
 
-- The bus layer and YM2612 layer are separated so the register-level API stays reusable when you later add a VGM player or a faster GPIO backend.
+- The bus layer and YM2612 layer are separated so the register-level API stays reusable from the VGM player and from future higher-level playback code.
 - Data lines D0-D7 are driven with `digitalWrite()` for conservative and predictable behavior.
 - `/CS` and `/WR` are treated as active-low control lines.
 - `/IC` is exposed through `resetChip()` and used during startup.
 - Timing uses intentionally long `delayMicroseconds()` values to prioritize reliable bring-up over throughput.
+- VGM playback runs as a small state machine in `loop()` and currently implements:
+  - YM2612 register writes (`0x52`, `0x53`)
+  - wait commands (`0x61`, `0x62`, `0x63`, `0x70-0x7F`, `0x80-0x8F`)
+  - loop/end handling (`0x66`)
+  - skipping of unrelated chip commands that appear in the source VGM
 - Port selection uses `A1`:
   - `port = 0` drives `A1 = LOW`
   - `port = 1` drives `A1 = HIGH`
@@ -77,17 +84,18 @@ At boot, `setup()` does the following:
    - reset timer control
    - disable DAC
    - key-off all 6 channels
-6. Writes a few extra test registers and prints log messages.
+6. Parses the embedded `rom_song` VGM header and logs version/data offsets.
+7. Starts playback.
 
-`loop()` is intentionally empty.
+`loop()` repeatedly calls the VGM player, which executes YM2612 writes immediately and schedules wait commands using `micros()`.
 
 ## Extending toward a VGM player
 
 The current structure is designed so you can later add:
 
-- a VGM command parser that calls `YM2612::writeRegister()`
 - a higher-performance bus backend while keeping the same chip API
 - channel helpers for instrument setup and note-on/note-off control
+- support for more VGM command types if you need additional chips or PCM features
 
 ## Files
 
