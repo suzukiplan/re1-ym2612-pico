@@ -69,47 +69,74 @@ class YM2612Bus
         driveDataBus(0x00);
 
         digitalWrite(YM2612Pins::kIC, LOW);
-        delay(10);
+        delayMicroseconds(kResetPulseUs);
         digitalWrite(YM2612Pins::kIC, HIGH);
-        delay(100);
+        delayMicroseconds(kResetRecoveryUs);
     }
 
     void writeAddress(uint8_t port, uint8_t address) const
     {
-        writeCycle(port, false, address);
+        writePhase(normalizePort(port), false, address);
     }
 
     void writeData(uint8_t port, uint8_t data) const
     {
-        writeCycle(port, true, data);
+        writePhase(normalizePort(port), true, data);
+    }
+
+    void writeRegister(uint8_t port, uint8_t address, uint8_t data) const
+    {
+        const uint8_t normalizedPort = normalizePort(port);
+        selectPort(normalizedPort);
+
+        writePhase(normalizedPort, false, address);
+        writePhase(normalizedPort, true, data);
+        delayMicroseconds(postWriteDelayUs(address));
     }
 
   private:
-    static constexpr uint16_t kSetupDelayUs = 8;
-    static constexpr uint16_t kWritePulseUs = 8;
-    static constexpr uint16_t kHoldDelayUs = 8;
-    static constexpr uint16_t kAddressToDataDelayUs = 32;
+    static constexpr uint16_t kWritePulseUs = 2;
+    static constexpr uint16_t kResetPulseUs = 25;
+    static constexpr uint16_t kResetRecoveryUs = 25;
 
-    void writeCycle(uint8_t port, bool isDataPhase, uint8_t value) const
+    static uint8_t normalizePort(uint8_t port)
+    {
+        return port & 0x01U;
+    }
+
+    static uint16_t postWriteDelayUs(uint8_t address)
+    {
+        if (address >= 0x21U && address <= 0x9EU) {
+            return 11;
+        }
+        if (address >= 0xA0U && address <= 0xB6U) {
+            return 6;
+        }
+        return 2;
+    }
+
+    void writePhase(uint8_t port, bool isDataPhase, uint8_t value) const
     {
         selectPort(port);
         digitalWrite(YM2612Pins::kA0, isDataPhase ? HIGH : LOW);
         driveDataBus(value);
+        pulseWrite(isDataPhase);
+    }
 
-        delayMicroseconds(kSetupDelayUs);
-        digitalWrite(YM2612Pins::kCS, LOW);
-        delayMicroseconds(kSetupDelayUs);
-        digitalWrite(YM2612Pins::kWR, LOW);
-        delayMicroseconds(kWritePulseUs);
-        digitalWrite(YM2612Pins::kWR, HIGH);
-        delayMicroseconds(kHoldDelayUs);
-        digitalWrite(YM2612Pins::kCS, HIGH);
-
+    void pulseWrite(bool isDataPhase) const
+    {
         if (isDataPhase) {
-            delayMicroseconds(kHoldDelayUs);
+            digitalWrite(YM2612Pins::kWR, LOW);
+            digitalWrite(YM2612Pins::kCS, LOW);
         } else {
-            delayMicroseconds(kAddressToDataDelayUs);
+            digitalWrite(YM2612Pins::kCS, LOW);
+            digitalWrite(YM2612Pins::kWR, LOW);
         }
+
+        delayMicroseconds(kWritePulseUs);
+
+        digitalWrite(YM2612Pins::kWR, HIGH);
+        digitalWrite(YM2612Pins::kCS, HIGH);
     }
 
     void selectPort(uint8_t port) const

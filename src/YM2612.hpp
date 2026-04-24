@@ -38,9 +38,13 @@ class YM2612
 
     void writeRegister(uint8_t port, uint8_t address, uint8_t data)
     {
+        if (address == 0x21U || address == 0x2CU) {
+            return;
+        }
+
         const uint8_t normalizedPort = normalizePort(port);
-        bus_.writeAddress(normalizedPort, address);
-        bus_.writeData(normalizedPort, data);
+        bus_.writeRegister(normalizedPort, address, data);
+        updateShadowState(normalizedPort, address, data);
     }
 
     void initializeSafeDefaults()
