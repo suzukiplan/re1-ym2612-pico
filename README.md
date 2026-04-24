@@ -21,6 +21,66 @@ Raspberry Pi Pico (RP2040) + PlatformIO + Arduino framework project for driving 
 | /IC | GPIO20 |
 | GND | GND |
 
+## YM2612
+
+```
+                     A1 A0   /WR /CS
+                     |  |     |  |
+  24 23 22 21 20 19 18 17 16 15 14 13
++-------------------------------------+
+|                                     |
+\               YAMAHA                |
+/               YM2612                |
+|                                     |
++-------------------------------------+
+   1  2  3  4. 5  6  7  8  9 10 11 12
+      |                    |     |
+      +--------------------+    /IC
+         Data (D0 ... D9)
+```
+
+### Pin Functions
+
+| No. | Pin Name | I/O | Function |
+|---:|---|---|---|
+| 1 | GND | - | Ground pin. |
+| 2 | D0 | I/O | 8-bit bidirectional data bus. Communicates data with the processor. |
+| 3 | D1 | I/O | 8-bit bidirectional data bus. Communicates data with the processor. |
+| 4 | D2 | I/O | 8-bit bidirectional data bus. Communicates data with the processor. |
+| 5 | D3 | I/O | 8-bit bidirectional data bus. Communicates data with the processor. |
+| 6 | D4 | I/O | 8-bit bidirectional data bus. Communicates data with the processor. |
+| 7 | D5 | I/O | 8-bit bidirectional data bus. Communicates data with the processor. |
+| 8 | D6 | I/O | 8-bit bidirectional data bus. Communicates data with the processor. |
+| 9 | D7 | I/O | 8-bit bidirectional data bus. Communicates data with the processor. |
+| 10 | TEST | I/O | Pin to test this LSI. Do not connect. |
+| 11 | /IC | I | Initializes the internal register. |
+| 12 | GND | - | Ground pin. |
+| 13 | /IRQ | O | Interrupt signal issued from the two timers. When the time programmed into the timer has elapsed, this goes low. Output with open drain. |
+| 14 | /CS | I | Control input. See control table below. |
+| 15 | /WR | I | Control input. See control table below. |
+| 16 | /RD | I | Control input. See control table below. |
+| 17 | A0 | I | Control input. See control table below. |
+| 18 | A1 | I | Control input. See control table below. |
+| 19 | A.GND | - | Ground pin. |
+| 20 | MOR | O | Two-channel analog outputs. These are output with a source follower. |
+| 21 | MOL | O | Two-channel analog outputs. These are output with a source follower. |
+| 22 | A.Vcc | - | +5V power supply pins. |
+| 23 | Vcc | - | +5V power supply pins. |
+| 24 | φM | I | Master clock input. |
+
+### Control Table
+
+| /CS | /RD | /WR | A1 | A0 | Details |
+|---:|---:|---:|---:|---:|---|
+| 0 | 1 | 0 | 0 | 0 | Writes register addresses of timers, etc. |
+| 0 | 1 | 0 | 0 | 1 | Writes register addresses of channels 1-3. |
+| 0 | 1 | 0 | 1 | 0 | Writes register data of timers, etc. |
+| 0 | 1 | 0 | 1 | 1 | Writes register data of channels 1-3. |
+| 0 | 1 | 0 | 1 | 0 | Writes register addresses of channels 4-6. |
+| 0 | 1 | 0 | 1 | 1 | Writes register data of channels 4-6. |
+| 0 | 0 | 1 | 0 | 0 | Reads status. |
+| 1 | X | X | X | X | D0-D7 are set to high-impedance. |
+
 ## Project layout
 
 - `platformio.ini`: PlatformIO environment for Raspberry Pi Pico with the Arduino framework.
