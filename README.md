@@ -19,13 +19,14 @@ Raspberry Pi Pico (RP2040) + PlatformIO + Arduino framework project for driving 
 | /WR | GPIO18 |
 | /CS | GPIO19 |
 | /IC | GPIO20 |
+| /IRQ | GPIO21 |
 | GND | GND |
 
 ## YM2612
 
 ```
-                     A1 A0   /WR /CS
-                     |  |     |  |
+                     A1 A0   /WR/CS/IRQ
+                     |  |     |  |  |
   24 23 22 21 20 19 18 17 16 15 14 13
 +-------------------------------------+
 |                                     |

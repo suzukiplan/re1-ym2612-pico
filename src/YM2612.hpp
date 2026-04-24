@@ -55,6 +55,19 @@ class YM2612
         silenceAllChannels();
     }
 
+    void setTimerA(uint16_t value)
+    {
+        const uint16_t normalizedValue = static_cast<uint16_t>(value & 0x03FFU);
+        writeRegister(0, 0x25, static_cast<uint8_t>(normalizedValue & 0x03U));
+        writeRegister(0, 0x24, static_cast<uint8_t>(normalizedValue >> 2U));
+        writeRegister(0, 0x27, 0x15U);
+    }
+
+    void clearTimerA()
+    {
+        writeRegister(0, 0x27, 0x00U);
+    }
+
   private:
     YM2612Bus& bus_;
     std::array<std::array<uint8_t, 4>, 6> tl_ = {};
