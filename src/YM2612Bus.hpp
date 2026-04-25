@@ -1,6 +1,8 @@
 #pragma once
 
 #include "ArduinoPlatform.hpp"
+#include <hardware/clocks.h>
+#include <hardware/pwm.h>
 #include <stdint.h>
 
 namespace re1
@@ -22,6 +24,8 @@ struct YM2612Pins {
     static constexpr uint8_t kWR = 18;
     static constexpr uint8_t kCS = 19;
     static constexpr uint8_t kIC = 20;
+    static constexpr uint8_t kRD = 28;
+    static constexpr uint8_t kSCLK = 29;
 };
 
 class YM2612Bus
@@ -52,12 +56,16 @@ class YM2612Bus
         pinMode(YM2612Pins::kWR, OUTPUT);
         pinMode(YM2612Pins::kCS, OUTPUT);
         pinMode(YM2612Pins::kIC, OUTPUT);
+        pinMode(YM2612Pins::kRD, OUTPUT);
 
         digitalWrite(YM2612Pins::kA0, LOW);
         digitalWrite(YM2612Pins::kA1, LOW);
         digitalWrite(YM2612Pins::kWR, HIGH);
         digitalWrite(YM2612Pins::kCS, HIGH);
         digitalWrite(YM2612Pins::kIC, HIGH);
+        digitalWrite(YM2612Pins::kRD, HIGH);
+
+        beginMasterClock();
     }
 
     void resetChip() const
@@ -66,6 +74,7 @@ class YM2612Bus
         digitalWrite(YM2612Pins::kWR, HIGH);
         digitalWrite(YM2612Pins::kA0, LOW);
         digitalWrite(YM2612Pins::kA1, LOW);
+        digitalWrite(YM2612Pins::kRD, HIGH);
         driveDataBus(0x00);
 
         digitalWrite(YM2612Pins::kIC, LOW);
@@ -90,14 +99,18 @@ class YM2612Bus
         selectPort(normalizedPort);
 
         writePhase(normalizedPort, false, address);
+        delayMicroseconds(kAddressWriteRecoveryUs);
+
         writePhase(normalizedPort, true, data);
         delayMicroseconds(postWriteDelayUs(address));
     }
 
   private:
-    static constexpr uint16_t kWritePulseUs = 2;
-    static constexpr uint16_t kResetPulseUs = 25;
-    static constexpr uint16_t kResetRecoveryUs = 25;
+    static constexpr uint32_t kMasterClockHz = 7670454;
+    static constexpr uint16_t kWritePulseUs = 1;
+    static constexpr uint16_t kAddressWriteRecoveryUs = 10;
+    static constexpr uint16_t kResetPulseUs = 1000;
+    static constexpr uint16_t kResetRecoveryUs = 1000;
 
     static uint8_t normalizePort(uint8_t port)
     {
@@ -106,13 +119,22 @@ class YM2612Bus
 
     static uint16_t postWriteDelayUs(uint8_t address)
     {
-        if (address >= 0x21U && address <= 0x9EU) {
-            return 11;
-        }
-        if (address >= 0xA0U && address <= 0xB6U) {
-            return 6;
-        }
-        return 2;
+        (void)address;
+        return 10;
+    }
+
+    static void beginMasterClock()
+    {
+        gpio_set_function(YM2612Pins::kSCLK, GPIO_FUNC_PWM);
+
+        const uint slice = pwm_gpio_to_slice_num(YM2612Pins::kSCLK);
+        const uint channel = pwm_gpio_to_channel(YM2612Pins::kSCLK);
+        pwm_config config = pwm_get_default_config();
+        pwm_config_set_wrap(&config, 1);
+        pwm_config_set_clkdiv(&config, static_cast<float>(clock_get_hz(clk_sys)) / (2.0F * kMasterClockHz));
+        pwm_init(slice, channel, &config, false);
+        pwm_set_chan_level(slice, channel, 1);
+        pwm_set_enabled(slice, true);
     }
 
     void writePhase(uint8_t port, bool isDataPhase, uint8_t value) const
@@ -125,13 +147,8 @@ class YM2612Bus
 
     void pulseWrite(bool isDataPhase) const
     {
-        if (isDataPhase) {
-            digitalWrite(YM2612Pins::kWR, LOW);
-            digitalWrite(YM2612Pins::kCS, LOW);
-        } else {
-            digitalWrite(YM2612Pins::kCS, LOW);
-            digitalWrite(YM2612Pins::kWR, LOW);
-        }
+        digitalWrite(YM2612Pins::kCS, LOW);
+        digitalWrite(YM2612Pins::kWR, LOW);
 
         delayMicroseconds(kWritePulseUs);
 

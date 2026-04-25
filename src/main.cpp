@@ -21,8 +21,8 @@ volatile uint16_t g_irqTestCounter = 0;
 #endif
 
 constexpr uint8_t kUserLedPin = 25;
-#if defined(IRQ_TEST)
 constexpr uint8_t kYmIrqPin = 21;
+#if defined(IRQ_TEST)
 constexpr unsigned long kIrqSelfTestTimeoutMs = 1000;
 constexpr uint16_t kIrqSelfTestPassCount = 10;
 #endif
@@ -45,9 +45,10 @@ void logPinMapping()
     Serial.println("  /WR   -> GPIO18");
     Serial.println("  /CS   -> GPIO19");
     Serial.println("  /IC   -> GPIO20");
-#if defined(IRQ_TEST)
     Serial.println("  /IRQ  -> GPIO21");
-#endif
+    Serial.println("  /RD   -> GPIO28");
+    Serial.println("  SCLK  -> GPIO29");
+    Serial.println("  A2/A3/EXSEL0-3 -> unconnected");
 }
 
 void logVgmInfo()
@@ -99,9 +100,7 @@ void setup()
     delay(1500);
     pinMode(kUserLedPin, OUTPUT);
     digitalWrite(kUserLedPin, LOW);
-#if defined(IRQ_TEST)
-    pinMode(kYmIrqPin, INPUT);
-#endif
+    pinMode(kYmIrqPin, INPUT_PULLUP);
 
     Serial.println();
     Serial.println("RE1-YM2612 minimal bus bring-up");
