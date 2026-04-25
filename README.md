@@ -67,6 +67,8 @@ Raspberry Pi Pico (RP2040) + PlatformIO + Arduino framework project for driving 
 
 Wire the user LED as a normal 3.3V GPIO LED circuit. Do not connect `GPIO25` directly to `VBUS` (+5V).
 
+> If you are using the YD-RP2040, a Raspberry Pi Pico-compatible module, this wiring is not necessary because the LED next to the power LED (red) is connected to GPIO25 by default.
+
 ## YM2612
 
 ```
