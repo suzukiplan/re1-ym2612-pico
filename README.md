@@ -23,7 +23,7 @@ Raspberry Pi Pico (RP2040) + PlatformIO + Arduino framework project for driving 
 | /WR | GPIO18 |
 | /CS | GPIO19 |
 | /IC | GPIO20 |
-| /IRQ | GPIO21 |
+| /IRQ | GPIO21 (uses Pico internal pull-up) |
 | /RD | GPIO28 |
 | SCLK | GPIO29 |
 | GND | GND |
@@ -62,8 +62,10 @@ Raspberry Pi Pico (RP2040) + PlatformIO + Arduino framework project for driving 
 
 | Rapberry Pi Pico | User LED |
 | ---------------- | -------- |
-| 25               | VBUS     |
-| GND              | GND      |
+| GPIO25           | Anode/Cathode via current-limiting resistor |
+| GND / 3V3(OUT)   | Cathode/Anode |
+
+Wire the user LED as a normal 3.3V GPIO LED circuit. Do not connect `GPIO25` directly to `VBUS` (+5V).
 
 ## YM2612
 
