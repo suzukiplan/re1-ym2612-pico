@@ -6,6 +6,8 @@ Raspberry Pi Pico (RP2040) + PlatformIO + Arduino framework project for driving 
 
 ![wiring.png](./wiring.png)
 
+### RE1-YM2612 - Raspberry Pi Pico
+
 | RE1-YM2612 | Raspberry Pi Pico |
 | --- | --- |
 | D0 | GPIO2 |
@@ -26,6 +28,8 @@ Raspberry Pi Pico (RP2040) + PlatformIO + Arduino framework project for driving 
 | SCLK | GPIO29 |
 | GND | GND |
 
+### RE1-YM2612 - USB Bus
+
 | RE1-YM2612 | USB Bus |
 | ---------- | ------- |
 | VCC        | VBUS    |
@@ -33,25 +37,33 @@ Raspberry Pi Pico (RP2040) + PlatformIO + Arduino framework project for driving 
 | GND        | GND     |
 | AGND       | AGND    |
 
+### RE1-YM2612 - 3.5mm Stereo
+
 | RE1-YM2612  | 3.5mm Stereo |
 | ----------- | ------------ |
 | L (LineOut) | L            |
 | R (LineOut) | R            |
 | G (LineOut) | G            |
 
+### 3.5mm Stereo - USB Bus
+
 | 3.5mm Stereo | USB Bus |
 | ------------ | ------- |
 | GND          | GND     |
+
+### RaspberryPi Pico - USB Bus
 
 | Rapberry Pi Pico | USB Bus |
 | ---------------- | ------- |
 | VSYS (Vin)       | VBUS    |
 | GND              | GND     |
 
-| Rapberry Pi Pico | LED     |
-| ---------------- | ------- |
-| 25               | VBUS    |
-| GND              | GND     |
+### RaspberryPi Pico - User LED
+
+| Rapberry Pi Pico | User LED |
+| ---------------- | -------- |
+| 25               | VBUS     |
+| GND              | GND      |
 
 ## YM2612
 
