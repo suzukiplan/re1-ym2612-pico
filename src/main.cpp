@@ -5,6 +5,9 @@
 #include "YM2612Bus.hpp"
 #include "rom_song.hpp"
 
+// Define IRQ_TEST to enable the MegaBlaster2-style YM2612 IRQ self-test on GPIO21.
+// #define IRQ_TEST
+
 namespace
 {
 
@@ -13,19 +16,25 @@ re1::YM2612 g_ym2612(g_bus);
 re1::VGMPlayer g_vgmPlayer(g_ym2612, rom_song, rom_song_size);
 unsigned long g_lastBlinkMillis = 0;
 bool g_ledState = false;
+#if defined(IRQ_TEST)
 volatile uint16_t g_irqTestCounter = 0;
+#endif
 
 constexpr uint8_t kUserLedPin = 25;
+#if defined(IRQ_TEST)
 constexpr uint8_t kYmIrqPin = 21;
-constexpr unsigned long kBlinkIntervalMs = 250;
 constexpr unsigned long kIrqSelfTestTimeoutMs = 1000;
 constexpr uint16_t kIrqSelfTestPassCount = 10;
+#endif
+constexpr unsigned long kBlinkIntervalMs = 250;
 
+#if defined(IRQ_TEST)
 void irqTestIsr()
 {
     g_ym2612.setTimerA(0);
     ++g_irqTestCounter;
 }
+#endif
 
 void logPinMapping()
 {
@@ -36,7 +45,9 @@ void logPinMapping()
     Serial.println("  /WR   -> GPIO18");
     Serial.println("  /CS   -> GPIO19");
     Serial.println("  /IC   -> GPIO20");
+#if defined(IRQ_TEST)
     Serial.println("  /IRQ  -> GPIO21");
+#endif
 }
 
 void logVgmInfo()
@@ -51,6 +62,7 @@ void logVgmInfo()
     Serial.println(static_cast<unsigned long>(g_vgmPlayer.loopOffset()), HEX);
 }
 
+#if defined(IRQ_TEST)
 void runIrqSelfTest()
 {
     Serial.println("Testing YM2612 IRQ...");
@@ -77,6 +89,7 @@ void runIrqSelfTest()
     g_ym2612.clearTimerA();
     Serial.println("YM IRQ OK!");
 }
+#endif
 
 } // namespace
 
@@ -86,7 +99,9 @@ void setup()
     delay(1500);
     pinMode(kUserLedPin, OUTPUT);
     digitalWrite(kUserLedPin, LOW);
+#if defined(IRQ_TEST)
     pinMode(kYmIrqPin, INPUT);
+#endif
 
     Serial.println();
     Serial.println("RE1-YM2612 minimal bus bring-up");
@@ -98,7 +113,9 @@ void setup()
     g_ym2612.initializeSafeDefaults();
     Serial.println("YM2612 safe defaults applied.");
 
+#if defined(IRQ_TEST)
     runIrqSelfTest();
+#endif
 
     if (!g_vgmPlayer.begin()) {
         Serial.println("Failed to parse rom_song VGM header.");
