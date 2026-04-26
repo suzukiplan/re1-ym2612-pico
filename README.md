@@ -37,6 +37,14 @@ Raspberry Pi Pico (RP2040) + PlatformIO + Arduino framework project for driving 
 | GND        | GND     |
 | AGND       | AGND    |
 
+Please decouple VCC/GND (AVCC/AGND) using a 0.1uF multilayer ceramic capacitor, as shown below.
+
+![wiring_bus.png](wiring_bus.png)
+
+The capacitor should be connected between the VCC rail and the GND rail.
+
+_Also, make sure that all connected devices share a common GND._
+
 ### RE1-YM2612 - 3.5mm Stereo
 
 | RE1-YM2612  | 3.5mm Stereo |
