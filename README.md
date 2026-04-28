@@ -80,8 +80,7 @@ Wire the user LED as a normal 3.3V GPIO LED circuit. Do not connect `GPIO25` dir
 ## YM2612
 
 ```
-         a        a
-  φM  V  V  L  R  G  A1 A0 RD WR CS IRQ
+  φM  V aV  L  R aG  A1 A0 RD WR CS IRQ
    |  |  |  |  |  |  |  |  |  |  |  |
   24 23 22 21 20 19 18 17 16 15 14 13
 +-------------------------------------+
@@ -90,10 +89,10 @@ Wire the user LED as a normal 3.3V GPIO LED circuit. Do not connect `GPIO25` dir
 /               YM2612                |
 |                                     |
 +-------------------------------------+
-   1  2  3  4. 5  6  7  8  9 10 11 12
+   1  2  3  4  5  6  7  8  9 10 11 12
    |  |                    |  |  |  |
    G  +--------------------+ nc IC  G
-         Data (D0 ... D9)
+         Data (D0 ... D7)
 ```
 
 ### Pin Functions
